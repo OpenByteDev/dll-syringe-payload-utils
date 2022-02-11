@@ -1,0 +1,15 @@
+[package]
+name = "dll-syringe-payload-utils"
+version = "0.1.0"
+description = "Utilities for building payloads for dll-syringe."
+readme = "README.md"
+repository = "https://github.com/OpenByteDev/dll-syringe-payload-utils" 
+homepage = "https://github.com/OpenByteDev/dll-syringe-payload-utils"
+documentation = "https://docs.rs/dll-syringe-payload-utils"
+license = "MIT"
+authors = ["OpenByte <development.openbyte@gmail.com>"]
+edition = "2021"
+categories = []
+keywords = ["dll-injection", "dll", "inject", "windows"]
+
+[dependencies]
