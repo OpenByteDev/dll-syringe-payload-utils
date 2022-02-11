@@ -10,6 +10,11 @@
 ///         a + b
 ///     }
 /// }
+/// #
+/// # let args = (1, 2);
+/// # let mut result = 0;
+/// # add(&args, &mut result);
+/// # assert_eq!(result, 3);
 /// ```
 /// 
 /// will generate an equivalent function to
@@ -19,6 +24,11 @@
 /// pub extern "system" fn add(args: *const (i32, i32), result: *mut i32) {
 ///     unsafe { *result = (*args).0 + (*args).1 }
 /// }
+/// #
+/// # let args = (1, 2);
+/// # let mut result = 0;
+/// # add(&args, &mut result);
+/// # assert_eq!(result, 3);
 /// ```
 #[macro_export]
 macro_rules! remote_procedure {
