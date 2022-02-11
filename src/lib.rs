@@ -46,10 +46,72 @@ macro_rules! remote_procedure {
         pub extern "system" fn $fn ( __args: *const ($($type ,)*), __result: *mut $ret ) {
             fn __inner ( $($name : $type),* ) -> $ret $body
 
-            let ($($name ,)*) = unsafe { *__args };
-            unsafe {
-                *__result = __inner($($name ,)*);
-            }
+            let ($($name ,)*) = unsafe { ::core::ptr::read(__args) };
+            unsafe { ::core::ptr::write(__result, __inner($($name ,)*)) };
         }
     };
+}
+
+#[cfg(test)]
+mod tests {
+    use std::{mem::MaybeUninit, ptr};
+
+    #[test]
+    fn does_not_drop_uninit_result() {
+        pub struct NoImplicitDrop(u32);
+
+        impl Drop for NoImplicitDrop {
+            fn drop(&mut self) {
+                assert_ne!(self.0, 0, "dropped before being initialized");
+            }
+        }
+
+        impl NoImplicitDrop {
+            fn new() -> Self {
+                Self(1)
+            }
+        }
+
+        remote_procedure! {
+            fn add() -> NoImplicitDrop {
+                NoImplicitDrop::new()
+            }
+        }
+
+        let mut result = MaybeUninit::uninit();
+        add(&(), result.as_mut_ptr());
+    }
+
+    #[test]
+    fn works_with_byte_buf() {
+        remote_procedure! {
+            fn pass_bytes(_arg: &[u8]) {
+            }
+        }
+    }
+
+    #[test]
+    fn takes_ownership_of_arg() {
+        pub struct NoCopy(u32);
+
+        impl Drop for NoCopy {
+            fn drop(&mut self) {
+            }
+        }
+
+        static mut STORAGE: Option<NoCopy> = None;
+
+        remote_procedure! {
+            fn takes_ownership(arg: NoCopy) {
+                unsafe { STORAGE = Some(arg) }
+            }
+        }
+
+        let mut arg = NoCopy(1);
+        let arg_ptr = &mut arg as *mut NoCopy;
+        takes_ownership(arg_ptr.cast(), &mut ());
+        unsafe { ptr::write(arg_ptr, NoCopy(2)) };
+
+        assert_eq!(unsafe { STORAGE.take() }.unwrap().0, 1);
+    }
 }
