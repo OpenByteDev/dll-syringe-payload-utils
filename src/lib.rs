@@ -35,8 +35,8 @@ macro_rules! remote_procedure {
     ($(pub)? fn $fn:ident ( $($name:ident : $type:ty),* )
         $body:block 
     ) => {
-        pub $crate::remote_procedure! {
-            fn $fn ( $($name : $type),* ) -> () $body
+        $crate::remote_procedure! {
+            pub fn $fn ( $($name : $type),* ) -> () $body
         }
     };
     ($(pub)? fn $fn:ident ( $($name:ident : $type:ty),* ) -> $ret:ty 
