@@ -16,24 +16,24 @@
 /// 
 /// ```
 /// #[no_mangle]
-/// extern "system" fn add(args: *const (i32, i32), result: *mut i32) {
+/// pub extern "system" fn add(args: *const (i32, i32), result: *mut i32) {
 ///     unsafe { *result = (*args).0 + (*args).1 }
 /// }
 /// ```
 #[macro_export]
 macro_rules! remote_procedure {
-    ($vis:vis fn $fn:ident ( $($name:ident : $type:ty),* )
+    ($(pub)? fn $fn:ident ( $($name:ident : $type:ty),* )
         $body:block 
     ) => {
-        $crate::remote_procedure! {
+        pub $crate::remote_procedure! {
             fn $fn ( $($name : $type),* ) -> () $body
         }
     };
-    ($vis:vis fn $fn:ident ( $($name:ident : $type:ty),* ) -> $ret:ty 
+    ($(pub)? fn $fn:ident ( $($name:ident : $type:ty),* ) -> $ret:ty 
         $body:block 
     ) => {
         #[no_mangle]
-        $vis extern "system" fn $fn ( __args: *const ($($type ,)*), __result: *mut $ret ) {
+        pub extern "system" fn $fn ( __args: *const ($($type ,)*), __result: *mut $ret ) {
             fn __inner ( $($name : $type),* ) -> $ret $body
 
             let ($($name ,)*) = unsafe { *__args };
