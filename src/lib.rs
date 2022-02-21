@@ -3,7 +3,7 @@
 
 /// A macro for defining functions to be called using [`RemoteProcedure`](https://docs.rs/dll-syringe/latest/dll_syringe/struct.RemoteProcedure.html) from [`dll-syringe`](https://docs.rs/dll-syringe/latest/dll_syringe/)
 /// in a more ergonomic manner.
-/// 
+///
 /// # Example
 /// ```
 /// dll_syringe_payload_utils::remote_procedure! {
@@ -17,9 +17,9 @@
 /// # unsafe { add(&args, &mut result) };
 /// # assert_eq!(result, 3);
 /// ```
-/// 
+///
 /// will generate an equivalent function to
-/// 
+///
 /// ```
 /// #[no_mangle]
 /// pub unsafe extern "system" fn add(args: *const (i32, i32), result: *mut i32) {
@@ -34,14 +34,14 @@
 #[macro_export]
 macro_rules! remote_procedure {
     ($(pub)? fn $fn:ident ( $($name:ident : $type:ty),* )
-        $body:block 
+        $body:block
     ) => {
         $crate::remote_procedure! {
             pub fn $fn ( $($name : $type),* ) -> () $body
         }
     };
-    ($(pub)? fn $fn:ident ( $($name:ident : $type:ty),* ) -> $ret:ty 
-        $body:block 
+    ($(pub)? fn $fn:ident ( $($name:ident : $type:ty),* ) -> $ret:ty
+        $body:block
     ) => {
         #[no_mangle]
         pub unsafe extern "system" fn $fn ( __args: *const ($($type ,)*), __result: *mut $ret ) {
@@ -96,8 +96,7 @@ mod tests {
         pub struct NoCopy(u32);
 
         impl Drop for NoCopy {
-            fn drop(&mut self) {
-            }
+            fn drop(&mut self) {}
         }
 
         static mut STORAGE: Option<NoCopy> = None;
